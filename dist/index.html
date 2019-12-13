@@ -15,7 +15,7 @@
       <div class="rides-list">
         <h2>Kyydit</h2>
         <div class="rides-container" :class="{ 'rides-container--selection': rideSelected }">
-          <div v-for="ride in scheduledRides" class="ride" :class="{ 'ride--selected': ride.selected }">
+          <div v-for="ride in scheduledRides" @click="selectRide(ride)" class="ride" :class="{ 'ride--selected': ride.selected }">
             <div class="ride__schedule">
               klo {{ride.time | time}} ({{ride.time | timeUntil }})
             </div>

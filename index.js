@@ -8,6 +8,7 @@ import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { OSM, Vector as VectorSource } from 'ol/source';
 import { Style, Fill, Stroke } from 'ol/style';
 import Vue from 'vue/dist/vue.common.prod';
+import _ from 'lodash';
 
 const ANIMATION_TIME = 200;
 
@@ -70,12 +71,15 @@ const app = new Vue({
     setInterval(() => {
       this.sanitizeRides();
     }, 2000);
+
+    setInterval(resetView, 20 * 1000);
   },
   methods: {
     startDrawing() {
       this.drawing = true;
       this.drawGuide = true;
       setDrawingEnabled(true);
+      resetView();
 
       setTimeout(() => {
         this.drawGuide = false;
@@ -85,6 +89,7 @@ const app = new Vue({
       this.showRideForm();
       this.recentFeature = feature;
       setDrawingEnabled(false);
+      resetView();
     },
     highlightRide(feature) {
       const selectedRide = this.rides.find(r => r.feature === feature);
@@ -141,6 +146,11 @@ const app = new Vue({
       this.hideRideForm();
       setDrawingEnabled(false);
     },
+    selectRide(ride) {
+      this.highlightRide(ride.feature);
+      setTimeout(() => zoomToFeature(ride.feature), ANIMATION_TIME);
+      resetView();
+    },
     addRide() {
       const ride = {
         feature: this.recentFeature,
@@ -162,8 +172,11 @@ const app = new Vue({
   },
 });
 
-const checkbox = document.getElementById('draw-checkbox');
-const rideForm = document.querySelector('.ride-form');
+const resetView = _.debounce(() => {
+  scrollToDefaultView();
+  app.highlightRide(null);
+  app.cancelAddRide();
+}, 2 * 60 * 1000);
 
 const defaultViewProps = {
   center: [2750000, 8440000],
@@ -224,10 +237,6 @@ interaction.on('drawend', ({ feature }) => {
   app.finishDrawing(feature);
 
   setTimeout(() => zoomToFeature(feature), ANIMATION_TIME);
-});
-
-interaction.on('change:active', () => {
-  console.log(123);
 });
 
 const select = new Select();

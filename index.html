@@ -20,6 +20,7 @@
         >
           <div
             v-for="ride in scheduledRides"
+            @click="selectRide(ride)"
             class="ride"
             :class="{ 'ride--selected': ride.selected }"
           >
