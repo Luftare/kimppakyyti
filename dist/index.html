@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Using Parcel with OpenLayers</title>
+    <link rel="stylesheet" href="/style.e308ff8e.css">
+  <script src="/style.e308ff8e.js"></script><link rel="stylesheet" href="/kimppakyyti.e31bb0bc.css"></head>
+  <body>
+    <div id="root">
+      <div id="map"></div>
+      <div class="draw-guide" :class="{ 'draw-guide--hidden': !drawGuide }">
+        <img src="/finger-icon.69c2eff2.png" class="draw-guide__hand">
+        <h2 class="draw-guide__label">Ympyröi minne voit heittää</h2>
+      </div>
+      <div class="rides-list">
+        <h2>Kyydit</h2>
+        <div class="rides-container" :class="{ 'rides-container--selection': rideSelected }">
+          <div v-for="ride in scheduledRides" class="ride" :class="{ 'ride--selected': ride.selected }">
+            <div class="ride__schedule">
+              klo {{ride.time | time}} ({{ride.time | timeUntil }})
+            </div>
+            <div class="ride__driver">{{ride.driverName}}</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="controls">
+        <div class="ride-form" :class="{ 'ride-form--hidden': !rideForm.visible }">
+          <div class="ride-form__row">
+            <span>
+              Lähden about
+              <span class="bold">
+                {{ rideForm.minutes | minutesToDuration }}
+              </span>
+              kuluttua ({{ departureTime | time }})
+            </span>
+            <button @click="decrementTime" :disabled="rideForm.minutes <= 30">
+              -30 min
+            </button>
+            <button @click="incrementTime">+30 min</button>
+          </div>
+          <div class="ride-form__row">
+            <span>
+              Kyytiin mahtuu enintään
+              <span class="bold">{{ rideForm.seatCount }}</span>
+            </span>
+
+            <button @click="decrementPax" :disabled="rideForm.seatCount <= 1">
+              -
+            </button>
+            <button @click="incrementPax">+</button>
+          </div>
+          <div class="ride-form__row">
+            <span>Huhuile nimeä
+              <span class="bold">
+                {{rideForm.driverName}}
+              </span>
+            </span>
+            <input type="text" class="name-input" v-model="rideForm.driverName">
+          </div>
+        </div>
+
+        <div class="cta-buttons">
+          <button @click="startDrawing" v-if="!drawing && !recentFeature" class="text--green">
+            Tarjoa kyyti
+          </button>
+
+          <button @click="cancelAddRide" v-if="drawing || recentFeature" class="text--red">
+            Peruuta
+          </button>
+
+          <button @click="addRide" v-if="recentFeature" class="text--green">
+            Lisää kyyti
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="/kimppakyyti.e31bb0bc.js"></script>
+  </body>
+</html>
