@@ -29,7 +29,7 @@
             :class="{ 'ride--selected': ride.selected }"
           >
             <div class="ride__schedule">
-              klo {{ride.time | time}} ({{ride.time | timeUntil }})
+              klo {{ride.time | time}} ({{ride.time | timeUntil | duration}})
             </div>
             <div class="ride__driver">{{ride.driverName}}</div>
           </div>

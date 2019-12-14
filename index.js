@@ -40,8 +40,8 @@ function getUserCoordinates() {
     const [lat, long, zoom] = cleanedString.split(',');
     return { lat, long, zoom };
   } else {
-    const lat = parseFloat(urlParams.get('lat')) || 60.1717265;
-    const long = parseFloat(urlParams.get('long')) || 24.9307312;
+    const lat = parseFloat(urlParams.get('lat')) || 60.1705413;
+    const long = parseFloat(urlParams.get('long')) || 24.93961;
     const zoom = parseFloat(urlParams.get('zoom')) || 11;
     return { lat, long, zoom };
   }
@@ -263,17 +263,30 @@ const raster = new TileLayer({
 
 const source = new VectorSource({ wrapX: false });
 
-const vector = new VectorLayer({
-  source,
-  style: new Style({
+const featureStyles = {
+  normal: new Style({
     fill: new Fill({
-      color: 'rgba(255, 25, 25, 0.5)',
+      color: 'rgba(25, 25, 255, 0.1)',
     }),
     stroke: new Stroke({
-      color: 'red',
+      color: 'rgba(25, 25, 255, 1)',
       width: 2,
     }),
   }),
+  selected: new Style({
+    fill: new Fill({
+      color: 'rgba(25, 25, 255, 0.4)',
+    }),
+    stroke: new Stroke({
+      color: 'rgba(25, 25, 255, 1)',
+      width: 2,
+    }),
+  }),
+};
+
+const vector = new VectorLayer({
+  source,
+  style: featureStyles.normal,
 });
 
 const map = new Map({
@@ -300,6 +313,10 @@ const select = new Select();
 
 select.on('select', e => {
   const feature = e.selected[0];
+
+  if (feature) {
+    feature.setStyle(featureStyles.selected);
+  }
 
   app.highlightRide(feature);
 });
