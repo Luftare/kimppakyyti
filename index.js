@@ -110,7 +110,7 @@ const app = new Vue({
 
     setInterval(() => {
       this.sanitizeRides();
-    }, 2000);
+    }, 20 * 1000);
   },
   methods: {
     handleInteraction() {
