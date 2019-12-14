@@ -17,11 +17,14 @@
         <h2 class="draw-guide__label">Ympyröi minne voit heittää</h2>
       </div>
       <div class="rides-list">
-        <h2>Kyydit</h2>
+        <h1>Kyydit</h1>
         <div
           class="rides-container"
           :class="{ 'rides-container--selection': rideSelected }"
         >
+          <div v-if="scheduledRides.length === 0" class="ride">
+            Ei kyytejä tarjolla
+          </div>
           <div
             v-for="ride in scheduledRides"
             @click="selectRide(ride)"
@@ -43,7 +46,7 @@
         >
           <div class="ride-form__row">
             <span>
-              Lähden about
+              Lähden noin
               <span class="bold">
                 {{ rideForm.minutes | minutesToMs | duration }}
               </span>
@@ -56,8 +59,9 @@
           </div>
           <div class="ride-form__row">
             <span>
-              Kyytiin mahtuu enintään
+              Kyytiin mahtuu
               <span class="bold">{{ rideForm.seatCount }}</span>
+              matkustaja
             </span>
 
             <button @click="decrementPax" :disabled="rideForm.seatCount <= 1">
@@ -67,7 +71,7 @@
           </div>
           <div class="ride-form__row">
             <span
-              >Kuskin tuntomerkit:
+              >Näin tunnistat minut:
               <span class="bold">
                 {{rideForm.driverName}}
               </span>

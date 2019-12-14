@@ -117,7 +117,7 @@ const app = new Vue({
       debouncedResetView();
     },
     handleDriverNameChange(e) {
-      this.rideForm.driverName = e.target.value.substr(0, 32);
+      this.rideForm.driverName = e.target.value.substr(0, 42);
     },
     startDrawing() {
       this.drawing = true;
