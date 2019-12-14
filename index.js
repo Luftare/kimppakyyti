@@ -123,7 +123,6 @@ const app = new Vue({
       this.drawing = true;
       this.drawGuide = true;
       setDrawingEnabled(true);
-      debouncedResetView();
 
       setTimeout(() => {
         this.drawGuide = false;
@@ -133,14 +132,33 @@ const app = new Vue({
       this.showRideForm();
       this.recentFeature = feature;
       setDrawingEnabled(false);
-      debouncedResetView();
     },
     highlightRide(feature) {
       const selectedRide = this.rides.find(r => r.feature === feature);
 
+      if (selectedRide) {
+        if (selectedRide.selected) {
+          setTimeout(() => zoomToFeature(feature), ANIMATION_TIME);
+        }
+      }
+
+      source
+        .getFeatures()
+        .filter(f => f.getProperties().isRide)
+        .forEach(rideFeature => {
+          const style =
+            rideFeature === feature
+              ? featureStyles.selected
+              : featureStyles.normal;
+          rideFeature.setStyle(style);
+        });
+
       this.rides.forEach(ride => {
         ride.selected = selectedRide === ride;
       });
+    },
+    resetView() {
+      resetView();
     },
     sanitizeRides() {
       const rideIsValid = ({ time }) => time - Date.now() > 0;
@@ -192,8 +210,6 @@ const app = new Vue({
     },
     selectRide(ride) {
       this.highlightRide(ride.feature);
-      setTimeout(() => zoomToFeature(ride.feature), ANIMATION_TIME);
-      debouncedResetView();
     },
     addRide() {
       const ride = {
@@ -216,11 +232,13 @@ const app = new Vue({
   },
 });
 
-const debouncedResetView = _.debounce(() => {
+const resetView = () => {
   scrollToDefaultView();
   app.highlightRide(null);
   app.cancelAddRide();
-}, 60 * 1000);
+};
+
+const debouncedResetView = _.debounce(resetView, 60 * 1000);
 
 function scrollToDefaultView() {
   map.updateSize();
@@ -304,6 +322,9 @@ const interaction = new Draw({
 });
 
 interaction.on('drawend', ({ feature }) => {
+  feature.setProperties({
+    isRide: true,
+  });
   app.finishDrawing(feature);
 
   setTimeout(() => zoomToFeature(feature), ANIMATION_TIME);

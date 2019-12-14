@@ -105,6 +105,10 @@
           <button @click="addRide" v-if="recentFeature" class="text--green">
             Lisää kyyti
           </button>
+
+          <button @click="resetView" v-if="!recentFeature && !drawing">
+            Keskitä kartta
+          </button>
         </div>
       </div>
     </div>
