@@ -284,7 +284,7 @@ const source = new VectorSource({ wrapX: false });
 const featureStyles = {
   normal: new Style({
     fill: new Fill({
-      color: 'rgba(25, 25, 255, 0.1)',
+      color: 'rgba(25, 25, 255, 0.05)',
     }),
     stroke: new Stroke({
       color: 'rgba(25, 25, 255, 1)',
