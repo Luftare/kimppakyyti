@@ -6,7 +6,11 @@
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
-    <div id="root">
+    <div
+      id="root"
+      @touchstart="handleInteraction"
+      @mousedown="handleInteraction"
+    >
       <div id="map"></div>
       <div class="draw-guide" :class="{ 'draw-guide--hidden': !drawGuide }">
         <img src="./assets/finger-icon.png" class="draw-guide__hand" />
@@ -41,14 +45,14 @@
             <span>
               Lähden about
               <span class="bold">
-                {{ rideForm.minutes | minutesToDuration }}
+                {{ rideForm.minutes | minutesToMs | duration }}
               </span>
               kuluttua ({{ departureTime | time }})
             </span>
-            <button @click="decrementTime" :disabled="rideForm.minutes <= 30">
-              -30 min
+            <button @click="decrementTime" :disabled="rideForm.minutes <= 15">
+              -15 min
             </button>
-            <button @click="incrementTime">+30 min</button>
+            <button @click="incrementTime">+15 min</button>
           </div>
           <div class="ride-form__row">
             <span>
@@ -63,7 +67,7 @@
           </div>
           <div class="ride-form__row">
             <span
-              >Huhuile nimeä
+              >Kuskin tuntomerkit:
               <span class="bold">
                 {{rideForm.driverName}}
               </span>
@@ -71,7 +75,8 @@
             <input
               type="text"
               class="name-input"
-              v-model="rideForm.driverName"
+              @input="handleDriverNameChange"
+              :value="rideForm.driverName"
             />
           </div>
         </div>

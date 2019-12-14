@@ -21,7 +21,7 @@ body {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  background: #556;
+  background: #222;
 }
 
 #root {
@@ -183,8 +183,8 @@ button {
 }
 
 button {
-  font-size: 20px;
-  padding: 8px 16px;
+  font-size: 28px;
+  padding: 16px 24px;
   font-weight: 700;
   background: lightgrey;
   border: none;
@@ -204,4 +204,5 @@ button:disabled {
 
 input {
   font-size: 20px;
+  padding: 0 8px;
 }

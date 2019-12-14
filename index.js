@@ -1,16 +1,51 @@
 import 'ol/ol.css';
 import Map from 'ol/Map';
 import View from 'ol/View';
+import Feature from 'ol/Feature';
+import { Point } from 'ol/geom';
 import Draw from 'ol/interaction/Draw';
 import Select from 'ol/interaction/Select';
 import { click } from 'ol/events/condition';
 import { Tile as TileLayer, Vector as VectorLayer } from 'ol/layer';
 import { OSM, Vector as VectorSource } from 'ol/source';
-import { Style, Fill, Stroke } from 'ol/style';
+import { Style, Fill, Stroke, Icon } from 'ol/style';
+import { transform } from 'ol/proj.js';
+import locationIcon from './assets/location-icon.png';
+
 import Vue from 'vue/dist/vue.common.prod';
 import _ from 'lodash';
 
 const ANIMATION_TIME = 200;
+
+const defaultViewProps = (() => {
+  const { lat, long, zoom } = getUserCoordinates();
+
+  return {
+    center: transform([long, lat], 'EPSG:4326', 'EPSG:3857'),
+    zoom,
+  };
+})();
+
+function getUserCoordinates() {
+  const urlParams = new URLSearchParams(window.location.search);
+
+  const hasGoogleCoordinates = urlParams.has('g');
+  if (hasGoogleCoordinates) {
+    const rawString = urlParams.get('g');
+    const cleanedString = rawString
+      .split('@')
+      .join('')
+      .split('z')
+      .join('');
+    const [lat, long, zoom] = cleanedString.split(',');
+    return { lat, long, zoom };
+  } else {
+    const lat = parseFloat(urlParams.get('lat')) || 60.1717265;
+    const long = parseFloat(urlParams.get('long')) || 24.9307312;
+    const zoom = parseFloat(urlParams.get('zoom')) || 11;
+    return { lat, long, zoom };
+  }
+}
 
 const app = new Vue({
   el: '#root',
@@ -38,8 +73,13 @@ const app = new Vue({
     },
   },
   filters: {
+    minutesToMs: minutes => {
+      return minutes * 60 * 1000;
+    },
     timeUntil: ms => {
-      const dt = ms - Date.now();
+      return ms - Date.now();
+    },
+    duration: dt => {
       const minutes = dt / 1000 / 60;
       const hours = minutes / 60;
       const wholeHours = Math.floor(hours);
@@ -71,15 +111,19 @@ const app = new Vue({
     setInterval(() => {
       this.sanitizeRides();
     }, 2000);
-
-    setInterval(resetView, 20 * 1000);
   },
   methods: {
+    handleInteraction() {
+      debouncedResetView();
+    },
+    handleDriverNameChange(e) {
+      this.rideForm.driverName = e.target.value.substr(0, 32);
+    },
     startDrawing() {
       this.drawing = true;
       this.drawGuide = true;
       setDrawingEnabled(true);
-      resetView();
+      debouncedResetView();
 
       setTimeout(() => {
         this.drawGuide = false;
@@ -89,7 +133,7 @@ const app = new Vue({
       this.showRideForm();
       this.recentFeature = feature;
       setDrawingEnabled(false);
-      resetView();
+      debouncedResetView();
     },
     highlightRide(feature) {
       const selectedRide = this.rides.find(r => r.feature === feature);
@@ -111,15 +155,15 @@ const app = new Vue({
       });
     },
     resetRideForm() {
-      this.rideForm.driverName = 'autolija';
-      this.rideForm.minutes = 30;
+      this.rideForm.driverName = 'Matti Meikäläinen';
+      this.rideForm.minutes = 60;
       this.rideForm.seatCount = 1;
     },
     incrementTime() {
-      this.rideForm.minutes += 30;
+      this.rideForm.minutes += 15;
     },
     decrementTime() {
-      this.rideForm.minutes -= 30;
+      this.rideForm.minutes -= 15;
     },
     incrementPax() {
       this.rideForm.seatCount++;
@@ -149,7 +193,7 @@ const app = new Vue({
     selectRide(ride) {
       this.highlightRide(ride.feature);
       setTimeout(() => zoomToFeature(ride.feature), ANIMATION_TIME);
-      resetView();
+      debouncedResetView();
     },
     addRide() {
       const ride = {
@@ -172,16 +216,11 @@ const app = new Vue({
   },
 });
 
-const resetView = _.debounce(() => {
+const debouncedResetView = _.debounce(() => {
   scrollToDefaultView();
   app.highlightRide(null);
   app.cancelAddRide();
-}, 2 * 60 * 1000);
-
-const defaultViewProps = {
-  center: [2750000, 8440000],
-  zoom: 12,
-};
+}, 60 * 1000);
 
 function scrollToDefaultView() {
   map.updateSize();
@@ -201,6 +240,22 @@ function setDrawingEnabled(enabled) {
     map.removeInteraction(interaction);
   }
 }
+
+const iconFeature = new Feature({
+  geometry: new Point(defaultViewProps.center),
+});
+
+iconFeature.setStyle(
+  new Style({
+    image: new Icon({
+      anchor: [0.5, 1],
+      anchorXUnits: 'fraction',
+      anchorYUnits: 'fraction',
+      src: locationIcon,
+      scale: 0.1,
+    }),
+  })
+);
 
 const raster = new TileLayer({
   source: new OSM(),
@@ -226,6 +281,8 @@ const map = new Map({
   target: 'map',
   view: new View(defaultViewProps),
 });
+
+source.addFeatures([iconFeature]);
 
 const interaction = new Draw({
   source,
