@@ -27,6 +27,52 @@
         <h2 class="draw-guide__label">Ympyröi minne voit heittää</h2>
       </div>
 
+      <div
+        class="modal notification"
+        :class="{ 'modal--hidden': !notificationVisible }"
+      >
+        <i class="fas fa-info-circle text--blue"></i>
+        {{notification}}
+      </div>
+
+      <div
+        class="modal column-list"
+        v-if="editRideModalVisible && selectedRide"
+      >
+        <div class="ride-details">
+          <i class="far fa-clock"></i>
+          {{ selectedRide.time | time }}
+        </div>
+
+        <div class="pair">
+          <button
+            @click="selectedRide.time -= 15 * 60 * 1000"
+            :disabled="selectedRide.time <= 15 * 60 * 1000"
+          >
+            -15 min
+          </button>
+          <button @click="selectedRide.time += 15 * 60 * 1000">
+            +15 min
+          </button>
+        </div>
+
+        <div class="passengers" v-if="selectedRide.passengers.length > 0">
+          <div v-for="passenger in selectedRide.passengers" class="passenger">
+            <i class="fas fa-user"></i>
+            <span>{{passenger}}</span>
+          </div>
+        </div>
+
+        <button @click="removeRide(selectedRide)" class="text--red">
+          <i class="fas fa-times"></i>
+          Poista kyyti
+        </button>
+        <button @click="resetView" class="text--green">
+          <i class="fas fa-check"></i>
+          Sulje
+        </button>
+      </div>
+
       <div class="enroll-form modal" v-if="selectedRide && showPassengerModal">
         <div class="ride-details">
           <span class="icon-text">
@@ -38,15 +84,10 @@
           </span>
         </div>
 
-        <div class="passengers">
-          <div v-for="passenger in selectedRide.passengers" class="passenger">
-            <i class="fas fa-user"></i>
-            <span>{{passenger}}</span>
-          </div>
-        </div>
         <div class="passenger-form">
-          <input v-model="passengerName" placeholder="Matkustajan nimi" />
+          <input v-model="passengerName" placeholder="Nimi" />
           <button @click="resetView" class="text--red">
+            <i class="fas fa-times"></i>
             Peruuta
           </button>
           <button
@@ -54,6 +95,7 @@
             class="text--green"
             :disabled="passengerName.length < 2"
           >
+            <i class="fas fa-check"></i>
             Vahvista
           </button>
         </div>
@@ -89,10 +131,16 @@
             <div class="ride__driver">{{ride.driverName}}</div>
           </div>
 
-          <button v-if="selectedRide" @click="showPassengerModal = true">
+          <button
+            v-if="selectedRide"
+            @click="showPassengerModal = true"
+            class="text--green"
+          >
+            <i class="far fa-hand-paper"></i>
             Ilmoittaudu kyytiin
           </button>
-          <button v-if="selectedRide">
+          <button v-if="selectedRide" @click="showEditRideModal">
+            <i class="fas fa-lock"></i>
             Muokkaa kyytiä
           </button>
         </div>
@@ -139,6 +187,7 @@
               class="name-input"
               @input="handleDriverNameChange"
               :value="rideForm.driverName"
+              placeholder="Nimi"
             />
           </div>
         </div>
@@ -149,6 +198,7 @@
             v-if="!drawing && !recentFeature"
             class="text--green"
           >
+            <i class="fas fa-car"></i>
             Tarjoa kyyti
           </button>
 
@@ -157,14 +207,22 @@
             v-if="drawing || recentFeature"
             class="text--red"
           >
+            <i class="fas fa-times"></i>
             Peruuta
           </button>
 
-          <button @click="addRide" v-if="recentFeature" class="text--green">
-            Lisää kyyti
+          <button
+            @click="addRide"
+            v-if="recentFeature"
+            class="text--green"
+            :disabled="rideForm.driverName.length < 2"
+          >
+            <i class="fas fa-check"></i>
+            Vahvista
           </button>
 
           <button @click="resetView" v-if="!recentFeature && !drawing">
+            <i class="fas fa-crosshairs"></i>
             Keskitä kartta
           </button>
         </div>

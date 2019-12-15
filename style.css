@@ -61,15 +61,21 @@ body {
   align-self: center;
   justify-self: center;
   background: white;
-  padding: 64px;
+  padding: 32px;
   z-index: 999999;
+  transition: opacity 400ms;
+}
+
+.modal--hidden {
+  opacity: 0;
 }
 
 .draw-guide {
   pointer-events: none;
-  opacity: 0.8;
+  opacity: 0.9;
   text-align: center;
   transition: opacity 400ms;
+  padding: 64px;
 }
 
 .draw-guide--hidden {
@@ -91,7 +97,7 @@ body {
   border: solid transparent 2px;
   margin: 16px;
   display: inline-block;
-  transition: all 500ms;
+  transition: all 400ms;
 }
 
 input:checked + .checkbox-label {
@@ -113,7 +119,7 @@ input:checked + .checkbox-label {
 .ride {
   color: white;
   font-size: 24px;
-  transition: opacity 300ms;
+  transition: opacity 400ms;
   cursor: pointer;
 }
 
@@ -207,6 +213,10 @@ button:disabled {
   color: green;
 }
 
+.text--blue {
+  color: lightskyblue;
+}
+
 .text--grey {
   color: #777;
 }
@@ -223,7 +233,7 @@ input {
   box-sizing: border-box;
   display: grid;
   grid-template-columns: 1fr;
-  grid-gap: 36px;
+  grid-gap: 16px;
   margin: 80px;
   color: white;
 }
@@ -243,7 +253,7 @@ input {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: auto auto;
-  grid-gap: 8px;
+  grid-gap: 16px;
 }
 
 .passenger-form > input {
@@ -262,4 +272,27 @@ input {
 
 .icon-text {
   margin-right: 12px;
+}
+
+.notification {
+  pointer-events: none;
+  font-size: 36px;
+  color: #555;
+  max-width: 70%;
+}
+
+.notification > i {
+  margin-right: 8px;
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 8px;
+}
+
+.column-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 16px;
 }

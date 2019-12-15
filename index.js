@@ -56,12 +56,15 @@ const app = new Vue({
     recentFeature: null,
     passengerName: '',
     showPassengerModal: false,
+    editRideModalVisible: false,
     rideForm: {
       visible: false,
       driverName: '',
       minutes: 30,
       seatCount: 2,
     },
+    notification: '',
+    notificationVisible: false,
   },
   computed: {
     selectedRide() {
@@ -141,6 +144,8 @@ const app = new Vue({
     highlightRide(feature) {
       const selectedRide = this.rides.find(r => r.feature === feature);
 
+      this.editRideModalVisible = false;
+
       if (selectedRide) {
         if (selectedRide.selected) {
           setTimeout(() => zoomToFeature(feature), ANIMATION_TIME);
@@ -178,7 +183,7 @@ const app = new Vue({
       });
     },
     resetRideForm() {
-      this.rideForm.driverName = 'Matti Meikäläinen';
+      this.rideForm.driverName = '';
       this.rideForm.minutes = 60;
       this.rideForm.seatCount = 3;
     },
@@ -214,9 +219,12 @@ const app = new Vue({
       setDrawingEnabled(false);
     },
     selectRide(ride) {
+      this.editRideModalVisible = false;
       this.highlightRide(ride.feature);
     },
     addRide() {
+      const passcode = Math.ceil(Math.random() * 100);
+
       const ride = {
         feature: this.recentFeature,
         driverName: this.rideForm.driverName,
@@ -225,14 +233,18 @@ const app = new Vue({
         passengers: [],
         passengerName: '',
         selected: false,
+        passcode,
       };
+
       this.rides.push(ride);
       this.recentFeature = null;
       this.drawing = false;
 
       this.hideRideForm();
+      alert(`Tällä koodilla voit muokata kyytiä: ${passcode}`);
     },
     removeRide(ride) {
+      if (!confirm('Haluatko varmasti poistaa kyydin?')) return;
       source.removeFeature(ride.feature);
       this.rides = this.rides.filter(r => r !== ride);
     },
@@ -240,9 +252,33 @@ const app = new Vue({
       this.selectedRide.passengers.push(this.passengerName);
       this.passengerName = '';
       this.showPassengerModal = false;
+      this.showNotification(
+        `Ilmoittauduit kyytiin, jonka kuljettaja on: ${this.selectedRide.driverName}`
+      );
+    },
+    showNotification(msg) {
+      this.notification = msg;
+      this.notificationVisible = true;
+      hideNotification();
+    },
+    showEditRideModal() {
+      const receivedPasscode = parseInt(
+        prompt('Anna koodi muokataksesi tätä kyytiä:')
+      );
+      const correctPasscode = receivedPasscode === this.selectedRide.passcode;
+
+      if (correctPasscode) {
+        this.editRideModalVisible = true;
+      } else {
+        this.showNotification('Väärä koodi');
+      }
     },
   },
 });
+
+const hideNotification = _.debounce(() => {
+  app.notificationVisible = false;
+}, 4000);
 
 const resetView = () => {
   scrollToDefaultView();
