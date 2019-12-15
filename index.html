@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta http-equiv="X-UA-Compatible" content="ie=edge" />
     <title>Kimppakyyti</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.11.2/css/all.min.css"
+    />
     <link rel="stylesheet" href="style.css" />
   </head>
   <body>
@@ -14,10 +18,47 @@
       @mousedown="handleInteraction"
     >
       <div id="map"></div>
-      <div class="draw-guide" :class="{ 'draw-guide--hidden': !drawGuide }">
+
+      <div
+        class="draw-guide modal"
+        :class="{ 'draw-guide--hidden': !drawGuide }"
+      >
         <img src="./assets/finger-icon.png" class="draw-guide__hand" />
         <h2 class="draw-guide__label">Ympyröi minne voit heittää</h2>
       </div>
+
+      <div class="enroll-form modal" v-if="selectedRide && showPassengerModal">
+        <div class="ride-details">
+          <span class="icon-text">
+            <i class="far fa-clock"></i> {{selectedRide.time | time}}
+          </span>
+          <span class="icon-text">
+            <i class="fas fa-user-friends"></i>
+            {{selectedRide.passengers.length}}/{{selectedRide.seatCount}}
+          </span>
+        </div>
+
+        <div class="passengers">
+          <div v-for="passenger in selectedRide.passengers" class="passenger">
+            <i class="fas fa-user"></i>
+            <span>{{passenger}}</span>
+          </div>
+        </div>
+        <div class="passenger-form">
+          <input v-model="passengerName" placeholder="Matkustajan nimi" />
+          <button @click="resetView" class="text--red">
+            Peruuta
+          </button>
+          <button
+            @click="addPassenger"
+            class="text--green"
+            :disabled="passengerName.length < 2"
+          >
+            Vahvista
+          </button>
+        </div>
+      </div>
+
       <div class="rides-list">
         <h1>Kyydit</h1>
         <div
@@ -34,10 +75,26 @@
             :class="{ 'ride--selected': ride.selected }"
           >
             <div class="ride__schedule">
-              klo {{ride.time | time}} ({{ride.time | timeUntil | duration}})
+              <span class="icon-text">
+                <i class="far fa-clock"></i> {{ride.time | time}}
+              </span>
+              <span class="icon-text">
+                <i class="fas fa-user-friends"></i>
+                {{ride.passengers.length}}/{{ride.seatCount}}
+              </span>
+              <span class="text--grey"
+                >{{ride.time | timeUntil | duration}}</span
+              >
             </div>
             <div class="ride__driver">{{ride.driverName}}</div>
           </div>
+
+          <button v-if="selectedRide" @click="showPassengerModal = true">
+            Ilmoittaudu kyytiin
+          </button>
+          <button v-if="selectedRide">
+            Muokkaa kyytiä
+          </button>
         </div>
       </div>
 
@@ -63,7 +120,6 @@
             <span>
               Kyytiin mahtuu
               <span class="bold">{{ rideForm.seatCount }}</span>
-              matkustaja
             </span>
 
             <button @click="decrementPax" :disabled="rideForm.seatCount <= 1">
@@ -73,7 +129,7 @@
           </div>
           <div class="ride-form__row">
             <span
-              >Näin tunnistat minut:
+              >Nimeni on:
               <span class="bold">
                 {{rideForm.driverName}}
               </span>

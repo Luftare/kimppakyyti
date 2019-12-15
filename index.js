@@ -54,6 +54,8 @@ const app = new Vue({
     drawGuide: false,
     rides: [],
     recentFeature: null,
+    passengerName: '',
+    showPassengerModal: false,
     rideForm: {
       visible: false,
       driverName: '',
@@ -62,6 +64,9 @@ const app = new Vue({
     },
   },
   computed: {
+    selectedRide() {
+      return this.rides.find(r => r.selected);
+    },
     rideSelected() {
       return this.rides.some(r => r.selected);
     },
@@ -175,7 +180,7 @@ const app = new Vue({
     resetRideForm() {
       this.rideForm.driverName = 'Matti Meikäläinen';
       this.rideForm.minutes = 60;
-      this.rideForm.seatCount = 1;
+      this.rideForm.seatCount = 3;
     },
     incrementTime() {
       this.rideForm.minutes += 15;
@@ -217,6 +222,8 @@ const app = new Vue({
         driverName: this.rideForm.driverName,
         time: Date.now() + this.rideForm.minutes * 60 * 1000,
         seatCount: this.rideForm.seatCount,
+        passengers: [],
+        passengerName: '',
         selected: false,
       };
       this.rides.push(ride);
@@ -229,11 +236,17 @@ const app = new Vue({
       source.removeFeature(ride.feature);
       this.rides = this.rides.filter(r => r !== ride);
     },
+    addPassenger() {
+      this.selectedRide.passengers.push(this.passengerName);
+      this.passengerName = '';
+      this.showPassengerModal = false;
+    },
   },
 });
 
 const resetView = () => {
   scrollToDefaultView();
+  app.showPassengerModal = false;
   app.highlightRide(null);
   app.cancelAddRide();
 };

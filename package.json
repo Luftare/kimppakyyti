@@ -12,6 +12,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "font-awesome": "^4.7.0",
+    "font-awesome.css": "^4.7.2",
     "lodash": "^4.17.15",
     "ol": "^6.1.1",
     "vue": "^2.6.10"
