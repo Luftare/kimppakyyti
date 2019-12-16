@@ -4,10 +4,6 @@
   user-select: none;
 }
 
-.bold {
-  font-weight: 800;
-}
-
 p,
 h1,
 h2,
@@ -25,7 +21,7 @@ body {
   background: #222;
 }
 
-#root {
+.app {
   display: grid;
   height: 100vh;
   grid-template-columns: 1fr 400px;
@@ -295,4 +291,12 @@ input {
   display: grid;
   grid-template-columns: 1fr;
   grid-gap: 16px;
+}
+
+.bold {
+  font-weight: 800;
+}
+
+[v-cloak] {
+  display: none;
 }
